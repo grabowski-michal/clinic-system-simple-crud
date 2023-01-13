@@ -3,10 +3,18 @@ import App from './components/App/App';
 const routerMap = [
     {
         path: "/",
-        element: <App/>,
+        element: <App func="home"/>,
+    },
+    {
+        path: "/login",
+        element: <App func="login"/>,
+    },
+    {
+        path: "/register",
+        element: <App func="register"/>,
     },
 
-    
+
 
 ]
 

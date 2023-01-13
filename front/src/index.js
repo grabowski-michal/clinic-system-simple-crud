@@ -5,7 +5,6 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import './index.css';
-import App from './components/App/App';
 import reportWebVitals from './reportWebVitals';
 import routerMap from "./routerMap";
 
