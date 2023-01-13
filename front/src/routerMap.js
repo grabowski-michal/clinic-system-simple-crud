@@ -1,17 +1,24 @@
-import App from './components/App/App';
+import HomePage from './view/HomePage/HomePage';
+import LoginPage from './view/LoginPage/LoginPage';
+import RegisterPage from './view/RegisterPage/RegisterPage';
+import SystemPage from './view/SystemPage/SystemPage';
 
 const routerMap = [
     {
         path: "/",
-        element: <App func="home"/>,
+        element: <HomePage />,
     },
     {
         path: "/login",
-        element: <App func="login"/>,
+        element: <LoginPage />,
     },
     {
         path: "/register",
-        element: <App func="register"/>,
+        element: <RegisterPage />,
+    },
+    {
+        path: "/system",
+        element: <SystemPage />,
     },
 
 

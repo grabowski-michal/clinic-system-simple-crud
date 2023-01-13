@@ -4,6 +4,7 @@
  */
 package pai.project.controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Michal_Grabowski
  */
 @RestController
+@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 public class TestController {
     
     @RequestMapping({ "/hello" })

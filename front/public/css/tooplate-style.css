@@ -322,11 +322,15 @@ http://www.tooplate.com/view/2098-health
     color: #a5c422;
   }
 
-  .navbar-default .navbar-nav li.appointment-btn {
+  .navbar-default .navbar-nav li.appointment-btn,
+  .navbar-default .navbar-nav li.register-btn,
+  .navbar-default .navbar-nav li.login-btn {
     margin: 3px 0 0 20px;
   }
 
-  .navbar-default .navbar-nav li.appointment-btn a {
+  .navbar-default .navbar-nav li.appointment-btn a,
+  .navbar-default .navbar-nav li.register-btn a,
+  .navbar-default .navbar-nav li.login-btn a {
     background: #a5c422;
     border-radius: 3px;
     color: #ffffff;
@@ -335,7 +339,9 @@ http://www.tooplate.com/view/2098-health
     padding-bottom: 12px;
   }
 
-  .navbar-default .navbar-nav li.appointment-btn a:hover {
+  .navbar-default .navbar-nav li.appointment-btn a:hover,
+  .navbar-default .navbar-nav li.register-btn a:hover,
+  .navbar-default .navbar-nav li.login-btn a:hover {
     background: #4267b2;
     color: #ffffff !important;
   }
@@ -997,7 +1003,9 @@ http://www.tooplate.com/view/2098-health
     .navbar-default .navbar-collapse, .navbar-default .navbar-form {
       border-color: transparent;
     }
-    .navbar-default .navbar-nav li.appointment-btn {
+    .navbar-default .navbar-nav li.appointment-btn,
+    .navbar-default .navbar-nav li.register-btn,
+    .navbar-default .navbar-nav li.login-btn {
       margin-left: 15px;
     }
     .navbar-default .navbar-nav li a {

@@ -17,7 +17,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsUtils;
 
 @Configuration
 @EnableWebSecurity
@@ -59,7 +61,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // W przykładzie nie ma potrzeby stosowania zabezpieczenia przed CSRF
         httpSecurity.csrf().disable()
         // poniższe żądanie nie wymaga uwierzytelniania
-            .authorizeRequests().antMatchers("/authenticate", "/register")
+            .authorizeRequests()
+            .requestMatchers(CorsUtils::isPreFlightRequest)
+            .permitAll().antMatchers("/authenticate", "/register")
             .permitAll()
             // wszystkie pozostałe żądania wymagają uwierzytelniania
             .anyRequest().authenticated().and()
@@ -73,6 +77,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.addFilterBefore(jwtRequestFilter,
         UsernamePasswordAuthenticationFilter.class);
     }
-    
-    
 }
