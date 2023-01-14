@@ -4,9 +4,16 @@ import styles from './HomePage.module.css';
 import Authenticator from '../../controllers/Authenticator/Authenticator';
 
 class HomePage extends React.Component {
-     loginComponent = "";
-     registerComponent = "";
-     appointmentComponent = "";
+     loggedInNavComponents = new Map([
+          ["profileComponent", <li className="profile-btn"><a href="/profile">Manage account</a></li>],
+          ["appointmentComponent", <li className="appointment-btn"><a href="#appointment">Make an appointment</a></li>],
+          ["logoutComponent", <li className="logout-btn"><a href="/logout">Logout</a></li>]
+     ]);
+     guestNavComponents = new Map([
+          ["loginComponent", <li className="login-btn"><a href="/login">Login</a></li>],
+          ["registerComponent", <li className="register-btn"><a href="/register">Register</a></li>]
+     ]);
+     shownComponents = new Map();
 
      loaded = false;
 
@@ -20,12 +27,13 @@ class HomePage extends React.Component {
      componentDidMount() {
           if (this.loaded === false) {
                Authenticator.getLoginInfo().then((response) => {
+                    console.log(response.logged);
                     if (response.logged === false) {
-                         this.loginComponent = <li className="login-btn"><a href="/login">Login</a></li>;
-                         this.registerComponent = <li className="register-btn"><a href="/register">Register</a></li>;
+                         this.shownComponents = this.guestNavComponents;
                     } else {
-                         this.appointmentComponent = <li className="appointment-btn"><a href="#appointment">Make an appointment</a></li>;
+                         this.shownComponents = this.loggedInNavComponents;
                     }
+                    console.log(this.shownComponents);
                     this.setState({
                          rerenderKey: this.state.rerenderKey + 1
                     });
@@ -40,7 +48,7 @@ class HomePage extends React.Component {
      render () {
           return (
      <div className={styles.HomePage}>
-          <section className="preloader">
+          <section className="preloader" style={{ display: "none" }}>
                <div className="spinner">
                     <span className="spinner-rotate"></span>
                </div>
@@ -80,9 +88,13 @@ class HomePage extends React.Component {
                               <li><a href="#team" className="smoothScroll">Doctors</a></li>
                               <li><a href="#news" className="smoothScroll">News</a></li>
                               <li><a href="#google-map" className="smoothScroll">Contact</a></li>
-                              { this.loginComponent }
-                              { this.registerComponent }
-                              { this.appointmentComponent }
+                              {/* Guest part */}
+                              { this.shownComponents.get("loginComponent") }
+                              { this.shownComponents.get("registerComponent")  }
+                              {/* Logged in part */}
+                              { this.shownComponents.get("profileComponent") }
+                              { this.shownComponents.get("appointmentComponent")  }
+                              { this.shownComponents.get("logoutComponent") }
                          </ul>
                     </div>
      

@@ -1,14 +1,20 @@
 import React from 'react';
 import styles from './RegisterPage.module.css';
+import $ from 'jquery';
+import { Navigate } from "react-router-dom";
 
 import Authenticator from '../../controllers/Authenticator/Authenticator';
 
 class RegisterPage extends React.Component {
   loginComponent = "";
   registerComponent = "";
+  navigateComponent = "";
   appointmentComponent = "";
+  maxDate = "2005-01-01";
 
   loaded = false;
+  blockedForm = false;
+  registered = false;
 
   constructor () {
        super();
@@ -16,32 +22,125 @@ class RegisterPage extends React.Component {
             rerenderKey: 0
        };
 
+       let today = new Date();
+       let year = (today.getFullYear() - 18);
+       let month = ((today.getMonth() + 1) < 10? "0" + (today.getMonth() + 1) : (today.getMonth() + 1));
+       let day = (today.getDate() < 10? "0" + today.getDate() : today.getDate());
+       if (month === "02" && day === "29") day = "28";
+
+       this.maxDate = year + "-" + month + "-" + day;
+
        this.handleRegister = this.handleRegister.bind(this);
   }
 
-  handleRegister(event) {
-    event.preventDefault();
-    const form = event.target;
+  onInput (e) {
+    let form = e.target.parentElement.parentElement.parentElement;
     const formFields = form.elements;
-    const registerData = {
-      firstName: formFields["first-name"].value,
-      lastName: formFields["last-name"].value,
-      username: formFields["username"].value,
-      email: formFields["email"].value,
-      idCard: formFields["id-card"].value,
-      phone: formFields["phone"].value,
-      birthDate: formFields["birth-date"].value,
-      password: formFields["password"].value,
-      address: {
-        street: formFields["street"].value,
-        postalCode: formFields["postal-code"].value,
-        city: formFields["city"].value,
-        state: formFields["state"].value,
-        country: formFields["country"].value,
-      }
-    };
 
-    Authenticator.handleRegister(registerData);
+    for (var i in formFields) {
+      let field = formFields[i];
+      if (field.tagName === "INPUT") {
+        field.setCustomValidity("");
+      }
+    }
+  }
+
+  handleValidation (form) {
+    const formFields = form.elements;
+    let errors = {};
+
+    const atLeastOneAlphabeticalLowerChar = new RegExp("^(?=.*[a-z])");
+    const atLeastOneAlphabeticalUpperChar = new RegExp("^(?=.*[A-Z])");
+    const atLeastOneNumericChar = new RegExp("^(?=.*[0-9])");
+    const atLeastOneSpecialChar = new RegExp("^(?=.*[!@#$%^&*])");
+    const atLeastEightChars = new RegExp("^(?=.{8,})");
+
+    if (!atLeastOneAlphabeticalLowerChar.test(formFields["password"].value)) {
+      errors.password = "Password needs to contain at least one lowercase alphabetical character";
+      formFields["password"].setCustomValidity(errors.password);
+      formFields["password"].reportValidity();
+
+    } else if (!atLeastOneAlphabeticalUpperChar.test(formFields["password"].value)) {
+      errors.password = "Password needs to contain at least one uppercase alphabetical character";
+      formFields["password"].setCustomValidity(errors.password);
+      formFields["password"].reportValidity();
+
+    } else if (!atLeastOneNumericChar.test(formFields["password"].value)) {
+      errors.password = "Password needs to contain at least one numeric character";
+      formFields["password"].setCustomValidity(errors.password);
+      formFields["password"].reportValidity();
+
+    } else if (!atLeastOneSpecialChar.test(formFields["password"].value)) {
+      errors.password = "Password needs to contain at least one special character";
+      formFields["password"].setCustomValidity(errors.password);
+      formFields["password"].reportValidity();
+
+    } else if (!atLeastEightChars.test(formFields["password"].value)) {
+      errors.password = "Password needs to have at least 8 characters";
+      formFields["password"].setCustomValidity(errors.password);
+      formFields["password"].reportValidity();
+
+    } else if (formFields["password"].value !== formFields["confirm-password"].value) {
+      errors.password = "Passwords are not the same";
+      formFields["confirm-password"].setCustomValidity(errors.password);
+      formFields["confirm-password"].reportValidity();
+    } else {
+      formFields["confirm-password"].setCustomValidity("");
+      formFields["confirm-password"].reportValidity();
+    }
+
+    if (JSON.stringify(errors) === '{}') return false;
+    else return true;
+  }
+
+  async handleRegister(event) {
+    event.preventDefault();
+    if (this.blockedForm === false) {
+      const form = event.target;
+      const formFields = form.elements;
+
+      if (this.handleValidation(form) === true) return;
+
+      this.blockedForm = true;
+      $(".preloader").css({display: "opacity(1)"});
+      this.setState({
+        rerenderKey: this.state.rerenderKey + 1
+      });
+
+      const registerData = {
+        firstName: formFields["first-name"].value,
+        lastName: formFields["last-name"].value,
+        username: formFields["username"].value,
+        email: formFields["email"].value,
+        idCard: formFields["id-card"].value,
+        phone: formFields["phone"].value,
+        birthDate: formFields["birth-date"].value,
+        password: formFields["password"].value,
+        address: {
+          street: formFields["street"].value,
+          postalCode: formFields["postal-code"].value,
+          city: formFields["city"].value,
+          state: formFields["state"].value,
+          country: formFields["country"].value,
+        }
+      };
+
+      const response = await Authenticator.handleRegister(registerData);
+      console.log(response);
+
+      $(".preloader").css({display: "none"});
+      this.blockedForm = false;
+      this.registered = true;
+      this.setState({
+        rerenderKey: this.state.rerenderKey + 1
+      });
+      setTimeout(() => {
+        this.navigateComponent = <Navigate to="/login" replace={true} />
+        this.setState({
+          rerenderKey: this.state.rerenderKey + 1
+        });
+      }, 3000);
+    }
   }
 
   componentDidMount() {
@@ -64,7 +163,7 @@ class RegisterPage extends React.Component {
   render () {
     return (
          <div className={styles.LoginPage}>
-          <section className="preloader">
+          <section className="preloader" style={{ display: "none" }}>
                <div className="spinner">
                     <span className="spinner-rotate"></span>
                </div>
@@ -114,56 +213,56 @@ class RegisterPage extends React.Component {
                               <img src="images/slider2.jpg" className="img-responsive" alt="" />
                          </div>
      
-                         <div className="col-md-6 col-sm-6">
-                              <form id="appointment-form" role="form" method="post" onSubmit={(event) => this.handleRegister(event)}>
+                         <div className="col-md-6 col-sm-6" key={this.state.rerenderKey}>
+                              <form id="appointment-form" role="form" method="post" onSubmit={(event) => this.handleRegister(event)} style={{ display: (this.blockedForm || this.registered) ? "none" : "initial" }}>
                                    <div className="section-title wow fadeInUp" data-wow-delay="0.4s">
                                         <h2>Register</h2>
                                    </div>
      
                                    <div className="wow fadeInUp" data-wow-delay="0.8s">
                                         <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="first-name">First Name</label>
-                                             <input type="text" className="form-control" id="first-name" name="first-name" placeholder="First Name" />
+                                             <label htmlFor="first-name">First Name <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                             <input type="text" className="form-control" id="first-name" name="first-name" placeholder="First Name" disabled={this.blockedForm} required/>
                                         </div>
 
                                         <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="last-name">Last Name</label>
-                                             <input type="text" className="form-control" id="last-name" name="last-name" placeholder="Last Name" />
+                                             <label htmlFor="last-name">Last Name <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                             <input type="text" className="form-control" id="last-name" name="last-name" placeholder="Last Name" disabled={this.blockedForm} required/>
                                         </div>
 
                                         <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="username">Username</label>
-                                             <input type="text" name="username" defaultValue="" name="username" className="form-control" placeholder="Login" />
+                                             <label htmlFor="username">Username <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                             <input type="text" name="username" defaultValue="" className="form-control" placeholder="Login" disabled={this.blockedForm} required/>
                                         </div>
      
                                         <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="email">Email</label>
-                                             <input type="email" className="form-control" id="email" name="email" placeholder="Your Email" />
+                                             <label htmlFor="email">Email <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                             <input type="email" className="form-control" id="email" name="email" placeholder="Your Email" disabled={this.blockedForm} required/>
                                         </div>
 
                                         <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="id-card">Identification Card Number</label>
-                                             <input type="text" className="form-control" id="id-card" name="id-card" placeholder="ID Card" />
+                                             <label htmlFor="id-card">Identification Card Number <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                             <input type="text" className="form-control" id="id-card" name="id-card" placeholder="ID Card" disabled={this.blockedForm} required/>
                                         </div>
 
                                         <div className="col-md-6 col-sm-6">
-                                            <label htmlFor="telephone">Phone Number</label>
-                                            <input type="tel" className="form-control" id="phone" name="phone" placeholder="Phone" />
+                                            <label htmlFor="telephone">Phone Number <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                            <input type="tel" className="form-control" id="phone" name="phone" placeholder="Phone" disabled={this.blockedForm} required/>
                                         </div>
 
                                         <div className="col-md-6 col-sm-6">
-                                              <label htmlFor="birth-date">Birth Date</label>
-                                             <input type="date" className="form-control" id="birth-date" name="birth-date" placeholder="Date" />
+                                              <label htmlFor="birth-date">Birth Date <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                              <input type="date" className="form-control" id="birth-date" name="birth-date" placeholder="Date" max={this.maxDate} disabled={this.blockedForm} required/>
                                         </div>
 
                                         <div className="col-md-12 col-sm-12">
-                                             <label htmlFor="password">Password</label>
-                                             <input type="password" name="password" defaultValue="" className="form-control" placeholder="Type your password" />
+                                             <label htmlFor="password">Password <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                             <input type="password" name="password" defaultValue="" className="form-control" placeholder="Type your password" disabled={this.blockedForm} onInput={(e) => this.onInput(e)} required/>
                                         </div>
 
                                         <div className="col-md-12 col-sm-12">
-                                              <label htmlFor="confirm-password">Confirm password</label>
-                                              <input type="password" name="confirm-password" defaultValue="" className="form-control" placeholder="Repeat your password" />
+                                              <label htmlFor="confirm-password">Confirm password <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                              <input type="password" name="confirm-password" defaultValue="" className="form-control" placeholder="Repeat your password" onInput={(e) => this.onInput(e)} disabled={this.blockedForm} required/>
                                         </div>
 
                                         <div className="col-md-12 col-sm-12" style={{marginBottom:"20px"}}>
@@ -171,37 +270,42 @@ class RegisterPage extends React.Component {
                                         </div>
 
                                         <div className="col-md-12 col-sm-12">
-                                              <label htmlFor="street">Street, House and Home Number</label>
-                                             <input type="text" className="form-control" id="street" name="street" placeholder="Street" />
+                                              <label htmlFor="street">Street, House and Home Number <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                             <input type="text" className="form-control" id="street" name="street" placeholder="Street" disabled={this.blockedForm} required/>
                                         </div>
 
                                         <div className="col-md-6 col-sm-6">
-                                              <label htmlFor="postal-code">Postal Code</label>
-                                             <input type="text" className="form-control" id="postal-code" name="postal-code" placeholder="Postal Code" />
+                                              <label htmlFor="postal-code">Postal Code <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                             <input type="text" className="form-control" id="postal-code" name="postal-code" placeholder="Postal Code" disabled={this.blockedForm} required/>
                                         </div>
 
                                         <div className="col-md-6 col-sm-6">
-                                              <label htmlFor="city">City</label>
-                                             <input type="text" className="form-control" id="city" name="city" placeholder="City" />
+                                              <label htmlFor="city">City <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                             <input type="text" className="form-control" id="city" name="city" placeholder="City" disabled={this.blockedForm} required/>
                                         </div>
 
                                         <div className="col-md-6 col-sm-6">
                                               <label htmlFor="state">State</label>
-                                             <input type="text" className="form-control" id="state" name="state" placeholder="State" />
+                                             <input type="text" className="form-control" id="state" name="state" placeholder="State" disabled={this.blockedForm}/>
                                         </div>
 
                                         <div className="col-md-6 col-sm-6">
-                                              <label htmlFor="country">Country</label>
-                                              <input type="text" className="form-control" id="country" name="country" placeholder="Country" />
+                                              <label htmlFor="country">Country <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                              <input type="text" className="form-control" id="country" name="country" placeholder="Country" disabled={this.blockedForm} required/>
                                         </div>
 
                                         <div className="col-md-12 col-sm-12">
-                                              <button className="form-control" id="cf-submit" name="submit">Submit Button</button>
+                                              <button className="form-control" id="cf-submit" name="submit" disabled={this.blockedForm}>Submit Button</button>
                                         </div>
                                    </div>
                               </form>
+                              <form id="appointment=form" role="form" style={{ display: this.registered ? "initial" : "none" }}>
+                                <div className="section-title wow fadeInUp" data-wow-delay="0.4s">
+                                    <h2>Thank you for registering! Now you'll be redirected to login page...</h2>
+                                  </div>
+                              </form>
                          </div>
-     
+    
                     </div>
                </div>
           </section>     
@@ -289,6 +393,9 @@ class RegisterPage extends React.Component {
                     </div>
                </div>
           </footer>
+          <div key={this.state.rerenderKey}>
+            { this.navigateComponent }
+          </div>
      </div>
   )}
 }

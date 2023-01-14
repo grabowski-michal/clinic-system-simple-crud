@@ -1,20 +1,70 @@
 import React from 'react';
 import styles from './LoginPage.module.css';
+import $ from 'jquery';
+import { Navigate } from "react-router-dom";
 
 import Authenticator from '../../controllers/Authenticator/Authenticator';
 
 class LoginPage extends React.Component {
   loginComponent = "";
   registerComponent = "";
+  navigateComponent = "";
   appointmentComponent = "";
+  error = "";
 
   loaded = false;
+  logged = false;
+  blockedForm = false;
 
   constructor () {
        super();
        this.state = {
             rerenderKey: 0
        };
+
+       this.handleLogin = this.handleLogin.bind(this);
+  }
+
+  async handleLogin (event) {
+    event.preventDefault();
+    if (this.blockedForm === false) {
+      const form = event.target;
+      const formFields = form.elements;
+      this.blockedForm = true;
+      $(".preloader").css({display: "opacity(1)"});
+      this.setState({
+        rerenderKey: this.state.rerenderKey + 1
+      });
+
+      let username = formFields["username"].value;
+      let password = formFields["password"].value;
+
+      const response = await Authenticator.handleLogin(username, password);
+      console.log(response);
+
+      if (response.logged == false) {
+        this.error = "Bad username or password. Please try again using correct credentials.";
+        this.setState({
+          rerenderKey: this.state.rerenderKey + 1
+        });
+      } else if (response.logged == true) {
+        this.logged = true;
+        this.setState({
+          rerenderKey: this.state.rerenderKey + 1
+        });
+        setTimeout(() => {
+          this.navigateComponent = <Navigate to="/" replace={true} />
+          this.setState({
+            rerenderKey: this.state.rerenderKey + 1
+          });
+        }, 3000);
+      }
+
+      $(".preloader").css({display: "none"});
+      this.blockedForm = false;
+
+
+    }
   }
 
   componentDidMount() {
@@ -37,7 +87,7 @@ class LoginPage extends React.Component {
   render () {
     return (
          <div className={styles.LoginPage}>
-          <section className="preloader">
+          <section className="preloader" style={{ display: "none" }}>
                <div className="spinner">
                     <span className="spinner-rotate"></span>
                </div>
@@ -88,45 +138,35 @@ class LoginPage extends React.Component {
                          </div>
      
                          <div className="col-md-6 col-sm-6">
-                              <form id="appointment-form" role="form" method="post" action="#">
+                              <form id="appointment-form" role="form" method="post" action="#" style={{ display: this.logged ? "none" : "initial" }} onSubmit={(event) => this.handleLogin(event)}>
                                    <div className="section-title wow fadeInUp" data-wow-delay="0.4s">
                                         <h2>Login</h2>
                                    </div>
      
                                    <div className="wow fadeInUp" data-wow-delay="0.8s">
                                         <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="name">Name</label>
-                                             <input type="text" className="form-control" id="name" name="name" placeholder="Full Name" />
+                                             <label htmlFor="username">Username</label>
+                                             <input type="text" className="form-control" id="username" name="username" placeholder="Username to log in" disabled={this.blockedForm} required />
                                         </div>
      
                                         <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="email">Email</label>
-                                             <input type="email" className="form-control" id="email" name="email" placeholder="Your Email" />
+                                             <label htmlFor="password">Password</label>
+                                             <input type="password" className="form-control" id="password" name="password" placeholder="Your password" disabled={this.blockedForm} required />
                                         </div>
-     
-                                        <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="date">Select Date</label>
-                                             <input type="date" name="date" defaultValue="" className="form-control" />
-                                        </div>
-     
-                                        <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="select">Select Department</label>
-                                             <select className="form-control">
-                                                  <option>General Health</option>
-                                                  <option>Cardiology</option>
-                                                  <option>Dental</option>
-                                                  <option>Medical Research</option>
-                                             </select>
+
+                                        <div className="col-md-12 col-sm-12" style={{display: this.error != "" ? "initial" : "none", marginBottom: "10px"}}>
+                                            <span style={{ color: "red", fontWeight:"bold"}}>{this.error}</span>
                                         </div>
      
                                         <div className="col-md-12 col-sm-12">
-                                             <label htmlFor="telephone">Phone Number</label>
-                                             <input type="tel" className="form-control" id="phone" name="phone" placeholder="Phone" />
-                                             <label htmlFor="Message">Additional Message</label>
-                                             <textarea className="form-control" rows="5" id="message" name="message" placeholder="Message"></textarea>
-                                             <button type="submit" className="form-control" id="cf-submit" name="submit">Submit Button</button>
+                                             <button type="submit" className="form-control" id="cf-submit" name="submit" disabled={this.blockedForm}>Log in</button>
                                         </div>
                                    </div>
+                              </form>
+                              <form id="appointment=form" role="form" style={{ display: this.logged ? "initial" : "none" }}>
+                                <div className="section-title wow fadeInUp" data-wow-delay="0.4s">
+                                    <h2>You are logged! Redirecting...</h2>
+                                  </div>
                               </form>
                          </div>
      
@@ -217,6 +257,9 @@ class LoginPage extends React.Component {
                     </div>
                </div>
           </footer>
+          <div key={this.state.rerenderKey}>
+            { this.navigateComponent }
+          </div>
      </div>
   )}
 }

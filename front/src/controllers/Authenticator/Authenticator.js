@@ -4,19 +4,23 @@ axios.defaults.headers.get['Access-Control-Allow-Origin'] = '*';
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 
 class Authenticator {
-
-
-
-
-
     static async getLoginInfo () {
         let username = localStorage.getItem('username');
         let token = localStorage.getItem('token');
         let response = { logged: false };
 
+        console.log(username);
+        console.log(token);
+
         if (username && token) {
             try {
-                axios.get('http://localhost:8080/hello', {})
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: '*/*'
+                    }
+                  }
+                await axios.get('http://localhost:8080/hello', config)
                 .then((res) => {
                     console.log("response?");
                     response = {
@@ -26,25 +30,58 @@ class Authenticator {
                     }
                 })
                 .catch((err) => {
+                    console.log(err);
+                    localStorage.removeItem('username');
+                    localStorage.removeItem('token');
                     return;
                 });
             } catch (ex) {
+                localStorage.removeItem('username');
+                localStorage.removeItem('token');
                 return;
             }
         }
         return response;
     }
 
-    static async handleLogin (username, password) {
-        const response = await axios.post('http://localhost:8080/register', { username: username, password: password });
+    static async handleLogout () {
+        localStorage.removeItem('username');
+        localStorage.removeItem('token');
+    }
 
-        console.log(response);
+    static async handleLogin (username, password) {
+        let response;
+        await axios.post('http://localhost:8080/authenticate', { username: username, password: password })
+        .then((res) => {
+            console.log(res);
+            if (res.status == 100 || res.status == 200) {
+                let token = res.data.token;
+                response = {
+                    username: username,
+                    token: token,
+                    logged: true
+                }
+                localStorage.setItem('username', username);
+                localStorage.setItem('token', token);
+            } else {
+                response = {
+                    logged: false
+                }
+            }
+        })
+        .catch((err) => {
+            response = {
+                logged: false
+            }
+        });
+
+        return response;
     }
 
     static async handleRegister (registerData) {
         const response = await axios.post('http://localhost:8080/register', registerData);
 
-        console.log(response);
+        return response;
     }
 
 
