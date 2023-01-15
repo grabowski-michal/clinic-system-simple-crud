@@ -1,18 +1,20 @@
 import React from 'react';
 import styles from './HomePage.module.css';
+import { Navigate } from "react-router-dom";
 
 import Authenticator from '../../controllers/Authenticator/Authenticator';
 
 class HomePage extends React.Component {
      loggedInNavComponents = new Map([
           ["profileComponent", <li className="profile-btn"><a href="/profile">Manage account</a></li>],
-          ["appointmentComponent", <li className="appointment-btn"><a href="#appointment">Make an appointment</a></li>],
+          ["appointmentComponent", <li className="appointment-btn"><a href="/appointment">Make an appointment</a></li>],
           ["logoutComponent", <li className="logout-btn"><a href="/logout">Logout</a></li>]
      ]);
      guestNavComponents = new Map([
           ["loginComponent", <li className="login-btn"><a href="/login">Login</a></li>],
           ["registerComponent", <li className="register-btn"><a href="/register">Register</a></li>]
      ]);
+     navigateComponent = "";
      shownComponents = new Map();
 
      loaded = false;
@@ -22,27 +24,45 @@ class HomePage extends React.Component {
           this.state = {
                rerenderKey: 0
           };
+
+          this.validateLoggedIn = this.validateLoggedIn.bind(this);
+          this.validateOnlyForGuests = this.validateOnlyForGuests.bind(this);
      }
 
      componentDidMount() {
           if (this.loaded === false) {
                Authenticator.getLoginInfo().then((response) => {
-                    console.log(response.logged);
                     if (response.logged === false) {
                          this.shownComponents = this.guestNavComponents;
+                         this.validateLoggedIn();
                     } else {
                          this.shownComponents = this.loggedInNavComponents;
+                         this.validateOnlyForGuests();
                     }
-                    console.log(this.shownComponents);
                     this.setState({
                          rerenderKey: this.state.rerenderKey + 1
                     });
                })
-               
-
-
           }
           this.loaded = true;
+     }
+
+     validateLoggedIn () {
+          if (this.props.authRequired) {
+               this.navigateComponent = <Navigate to="/" replace={true} />
+               this.setState({
+               rerenderKey: this.state.rerenderKey + 1
+               });
+          }
+     }
+
+     validateOnlyForGuests () {
+          if (this.props.onlyForGuests) {
+               this.navigateComponent = <Navigate to="/" replace={true} />
+               this.setState({
+                    rerenderKey: this.state.rerenderKey + 1
+               });
+          }
      }
 
      render () {
@@ -79,11 +99,11 @@ class HomePage extends React.Component {
                               <span className="icon icon-bar"></span>
                               <span className="icon icon-bar"></span>
                          </button>
-                         <a href="index.html" className="navbar-brand"><i className="fa fa-h-square"></i>ealth Center</a>
+                         <a href="/" className="navbar-brand"><i className="fa fa-h-square"></i>ealth Center</a>
                     </div>
                     <div className="collapse navbar-collapse" key={this.state.rerenderKey}>
                          <ul className="nav navbar-nav navbar-right">
-                              <li><a href="#" className="smoothScroll">Home</a></li>
+                              <li><a href="/" className="smoothScroll">Home</a></li>
                               <li><a href="#about" className="smoothScroll">About Us</a></li>
                               <li><a href="#team" className="smoothScroll">Doctors</a></li>
                               <li><a href="#news" className="smoothScroll">News</a></li>
@@ -312,62 +332,6 @@ class HomePage extends React.Component {
                     </div>
                </div>
           </section>
-          <section id="appointment" data-stellar-background-ratio="3">
-               <div className="container">
-                    <div className="row">
-     
-                         <div className="col-md-6 col-sm-6">
-                              <img src="images/appointment-image.jpg" className="img-responsive" alt="" />
-                         </div>
-     
-                         <div className="col-md-6 col-sm-6">
-                              <form id="appointment-form" role="form" method="post" action="#">
-                                   <div className="section-title wow fadeInUp" data-wow-delay="0.4s">
-                                        <h2>Make an appointment</h2>
-                                   </div>
-     
-                                   <div className="wow fadeInUp" data-wow-delay="0.8s">
-                                        <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="name">Name</label>
-                                             <input type="text" className="form-control" id="name" name="name" placeholder="Full Name" />
-                                        </div>
-     
-                                        <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="email">Email</label>
-                                             <input type="email" className="form-control" id="email" name="email" placeholder="Your Email" />
-                                        </div>
-     
-                                        <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="date">Select Date</label>
-                                             <input type="date" name="date" defaultValue="" className="form-control" />
-                                        </div>
-     
-                                        <div className="col-md-6 col-sm-6">
-                                             <label htmlFor="select">Select Department</label>
-                                             <select className="form-control">
-                                                  <option>General Health</option>
-                                                  <option>Cardiology</option>
-                                                  <option>Dental</option>
-                                                  <option>Medical Research</option>
-                                             </select>
-                                        </div>
-     
-                                        <div className="col-md-12 col-sm-12">
-                                             <label htmlFor="telephone">Phone Number</label>
-                                             <input type="tel" className="form-control" id="phone" name="phone" placeholder="Phone" />
-                                             <label htmlFor="Message">Additional Message</label>
-                                             <textarea className="form-control" rows="5" id="message" name="message" placeholder="Message"></textarea>
-                                             <button type="submit" className="form-control" id="cf-submit" name="submit">Submit Button</button>
-                                        </div>
-                                   </div>
-                              </form>
-                         </div>
-     
-                    </div>
-               </div>
-          </section>
-     
-     
           <section id="google-map">
                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3647.3030413476204!2d100.5641230193719!3d13.757206847615207!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xf51ce6427b7918fc!2sG+Tower!5e0!3m2!1sen!2sth!4v1510722015945" width="100%" height="350" frameBorder="0" style={{ border:0 }} allowFullScreen></iframe>
           </section>           
@@ -451,10 +415,12 @@ class HomePage extends React.Component {
                                    </div>
                               </div>   
                          </div>
-                         
                     </div>
                </div>
           </footer>
+          <div key={this.state.rerenderKey}>
+               { this.navigateComponent }
+          </div>
      </div>
      );
      }

@@ -4,25 +4,24 @@ axios.defaults.headers.get['Access-Control-Allow-Origin'] = '*';
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 
 class Authenticator {
+    static config = (token) => {
+        return ({
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: '*/*'
+            }
+        });
+    }
+
     static async getLoginInfo () {
         let username = localStorage.getItem('username');
         let token = localStorage.getItem('token');
         let response = { logged: false };
 
-        console.log(username);
-        console.log(token);
-
         if (username && token) {
             try {
-                const config = {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: '*/*'
-                    }
-                  }
-                await axios.get('http://localhost:8080/hello', config)
+                await axios.get('http://localhost:8080/hello', Authenticator.config(token))
                 .then((res) => {
-                    console.log("response?");
                     response = {
                         username: username,
                         token: token,
@@ -38,6 +37,39 @@ class Authenticator {
             } catch (ex) {
                 localStorage.removeItem('username');
                 localStorage.removeItem('token');
+                return;
+            }
+        }
+        console.log(response);
+        return response;
+    }
+
+    static async getUserData () {
+        let username = localStorage.getItem('username');
+        let token = localStorage.getItem('token');
+        let response = { data: {}, logged: false };
+
+        if (username && token) {
+            try {
+                const request = {
+                    ...Authenticator.config(token),
+                    params: {
+                        token: token
+                    }
+                }
+                console.log(request);
+                await axios.get('http://localhost:8080/getUserInfo', request)
+                .then((res) => {
+                    response = {
+                        data: res.data,
+                        logged: true,
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    return;
+                });
+            } catch (ex) {
                 return;
             }
         }

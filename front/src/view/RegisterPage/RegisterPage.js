@@ -6,10 +6,17 @@ import { Navigate } from "react-router-dom";
 import Authenticator from '../../controllers/Authenticator/Authenticator';
 
 class RegisterPage extends React.Component {
-  loginComponent = "";
-  registerComponent = "";
+  loggedInNavComponents = new Map([
+      ["profileComponent", <li className="profile-btn"><a href="/profile">Manage account</a></li>],
+      ["appointmentComponent", <li className="appointment-btn"><a href="/appointment">Make an appointment</a></li>],
+      ["logoutComponent", <li className="logout-btn"><a href="/logout">Logout</a></li>]
+  ]);
+  guestNavComponents = new Map([
+      ["loginComponent", <li className="login-btn"><a href="/login">Login</a></li>],
+      ["registerComponent", <li className="register-btn"><a href="/register">Register</a></li>]
+  ]);
+  shownComponents = new Map();
   navigateComponent = "";
-  appointmentComponent = "";
   maxDate = "2005-01-01";
 
   loaded = false;
@@ -31,6 +38,8 @@ class RegisterPage extends React.Component {
        this.maxDate = year + "-" + month + "-" + day;
 
        this.handleRegister = this.handleRegister.bind(this);
+       this.validateLoggedIn = this.validateLoggedIn.bind(this);
+       this.validateOnlyForGuests = this.validateOnlyForGuests.bind(this);
   }
 
   onInput (e) {
@@ -126,7 +135,6 @@ class RegisterPage extends React.Component {
       };
 
       const response = await Authenticator.handleRegister(registerData);
-      console.log(response);
 
       $(".preloader").css({display: "none"});
       this.blockedForm = false;
@@ -144,20 +152,39 @@ class RegisterPage extends React.Component {
   }
 
   componentDidMount() {
-       if (this.loaded === false) {
-            Authenticator.getLoginInfo().then((response) => {
-                 if (response.logged === false) {
-                      this.loginComponent = <li className="login-btn"><a href="/login">Login</a></li>;
-                      this.registerComponent = <li className="register-btn"><a href="/register">Register</a></li>;
-                 } else {
-                      this.appointmentComponent = <li className="appointment-btn"><a href="/#appointment">Make an appointment</a></li>;
-                 }
-                 this.setState({
-                      rerenderKey: this.state.rerenderKey + 1
-                 });
-            })
-       }
-       this.loaded = true;
+    if (this.loaded === false) {
+      Authenticator.getLoginInfo().then((response) => {
+          if (response.logged === false) {
+                this.shownComponents = this.guestNavComponents;
+                this.validateLoggedIn();
+          } else {
+                this.shownComponents = this.loggedInNavComponents;
+                this.validateOnlyForGuests();
+          }
+          this.setState({
+                rerenderKey: this.state.rerenderKey + 1
+          });
+      })
+    }
+    this.loaded = true;
+  }
+
+  validateLoggedIn () {
+    if (this.props.authRequired) {
+      this.navigateComponent = <Navigate to="/" replace={true} />
+      this.setState({
+        rerenderKey: this.state.rerenderKey + 1
+      });
+    }
+  }
+
+  validateOnlyForGuests () {
+    if (this.props.onlyForGuests) {
+      this.navigateComponent = <Navigate to="/" replace={true} />
+      this.setState({
+        rerenderKey: this.state.rerenderKey + 1
+      });
+    }
   }
 
   render () {
@@ -194,13 +221,18 @@ class RegisterPage extends React.Component {
                               <span className="icon icon-bar"></span>
                               <span className="icon icon-bar"></span>
                          </button>
-                         <a href="index.html" className="navbar-brand"><i className="fa fa-h-square"></i>ealth Center</a>
+                         <a href="/" className="navbar-brand"><i className="fa fa-h-square"></i>ealth Center</a>
                     </div>
                     <div className="collapse navbar-collapse" key={this.state.rerenderKey}>
                          <ul className="nav navbar-nav navbar-right">
                               <li><a href="/" className="smoothScroll">Go Back to Home Page</a></li>
-                              { this.loginComponent }
-                              { this.registerComponent }
+                              {/* Guest part */}
+                              { this.shownComponents.get("loginComponent") }
+                              { this.shownComponents.get("registerComponent")  }
+                              {/* Logged in part */}
+                              { this.shownComponents.get("profileComponent") }
+                              { this.shownComponents.get("appointmentComponent")  }
+                              { this.shownComponents.get("logoutComponent") }
                          </ul>
                     </div>
                </div>

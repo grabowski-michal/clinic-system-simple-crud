@@ -12,19 +12,19 @@ const routerMap = [
     },
     {
         path: "/login",
-        element: <LoginPage />,
+        element: <LoginPage onlyForGuests={true} />,
     },
     {
         path: "/register",
-        element: <RegisterPage />,
+        element: <RegisterPage onlyForGuests={true} />,
     },
     {
-        path: "/system",
-        element: <SystemPage />,
+        path: "/appointment",
+        element: <SystemPage authRequired={true} />,
     },
     {
         path: "/profile",
-        element: <ProfilePage />,
+        element: <ProfilePage authRequired={true} />,
     },
     {
         path: "/logout",
