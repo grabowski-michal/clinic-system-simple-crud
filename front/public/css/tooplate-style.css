@@ -1071,6 +1071,6 @@ http://www.tooplate.com/view/2098-health
 
   }
 
-.fa-edit {
+.fa-edit, .fa-check, .fa-times {
     cursor: pointer;
 }

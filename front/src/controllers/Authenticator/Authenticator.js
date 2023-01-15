@@ -116,6 +116,120 @@ class Authenticator {
         return response;
     }
 
+    static async handleUpdateUser (alteredData) {
+        let data = {
+            token: localStorage.getItem('token'),
+            user: alteredData
+        };
+        const response = await axios.put('http://localhost:8080/alterUser', data, Authenticator.config(localStorage.getItem('token')));
+        return response;
+    }
+
+    static async handleUpdateAddress (alteredData) {
+        let data = {
+            token: localStorage.getItem('token'),
+            address: alteredData
+        };
+        const response = await axios.put('http://localhost:8080/alterAddress', data, Authenticator.config(localStorage.getItem('token')));
+        return response;
+    }
+
+    static async handleUpdatePassword (alteredData) {
+        let data = {
+            token: localStorage.getItem('token'),
+            oldPassword: alteredData.oldPassword,
+            newPassword: alteredData.newPassword
+        };
+        const response = await axios.put('http://localhost:8080/alterPassword', data, Authenticator.config(localStorage.getItem('token')));
+        return response;
+    }
+
+    static async getDoctorsFromDepartment (department) {
+        let token = localStorage.getItem('token');
+        let response = { data: {}, logged: false };
+
+        if (token) {
+            try {
+                const request = {
+                    ...Authenticator.config(token),
+                    params: {
+                        token: token,
+                        department: department
+                    }
+                }
+                console.log(request);
+                await axios.get('http://localhost:8080/getDoctors', request)
+                .then((res) => {
+                    response = {
+                        data: res.data,
+                        logged: true,
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    return;
+                });
+            } catch (ex) {
+                return;
+            }
+        }
+        return response;
+    }
+
+    static async handleMakeAppointment (appointmentData) {
+        appointmentData = {
+            appointment: appointmentData
+        }
+        appointmentData.token = localStorage.getItem('token');
+        console.log(appointmentData);
+        const response = await axios.post('http://localhost:8080/makeAppointment', appointmentData, Authenticator.config(localStorage.getItem('token')));
+        return response;
+    }
+
+    static async getAppointments () {
+        let token = localStorage.getItem('token');
+        let response = { data: {}, logged: false };
+
+        if (token) {
+            try {
+                const request = {
+                    ...Authenticator.config(token),
+                    params: {
+                        token: token
+                    }
+                }
+                console.log(request);
+                await axios.get('http://localhost:8080/getAppointments', request)
+                .then((res) => {
+                    response = {
+                        data: res.data,
+                        logged: true,
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    return;
+                });
+            } catch (ex) {
+                return;
+            }
+        }
+        return response;
+    }
+
+    static async handleCancelAppointment (appointmentId) {
+
+        let data = {
+            ...Authenticator.config(localStorage.getItem('token')),
+            data: {
+                token: localStorage.getItem('token'),
+                id: parseInt(appointmentId)
+            }
+        }
+        const response = await axios.delete('http://localhost:8080/cancelAppointment', data);
+        return response;
+    }
+
 
 }
 

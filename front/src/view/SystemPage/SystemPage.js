@@ -17,8 +17,11 @@ class SystemPage extends React.Component {
   ]);
   navigateComponent = "";
   shownComponents = new Map();
+  doctorsOptions = [];
 
+  registered = false;
   loaded = false;
+  blockedForm = false;
 
   constructor () {
       super();
@@ -29,6 +32,7 @@ class SystemPage extends React.Component {
       this.initDate = this.initDate.bind(this);
       this.validateLoggedIn = this.validateLoggedIn.bind(this);
       this.validateOnlyForGuests = this.validateOnlyForGuests.bind(this);
+      this.handleMakeAppointment = this.handleMakeAppointment.bind(this);
   }
 
   initDate() {
@@ -64,6 +68,11 @@ class SystemPage extends React.Component {
           })
       }
       this.loaded = true;
+      this.onDepartmentChange({
+        target:{
+            value:'General Health'
+        }
+    });
   }
 
   validateLoggedIn () {
@@ -78,6 +87,58 @@ class SystemPage extends React.Component {
   validateOnlyForGuests () {
     if (this.props.onlyForGuests) {
       this.navigateComponent = <Navigate to="/" replace={true} />
+      this.setState({
+        rerenderKey: this.state.rerenderKey + 1
+      });
+    }
+  }
+
+  async onDepartmentChange (e) {
+    let response = await Authenticator.getDoctorsFromDepartment(e.target.value);
+    response = response.data.map((doctor) => {
+        return <option key={doctor.id} value={doctor.id}>{doctor.firstName} {doctor.lastName}</option>
+    })
+    this.doctorsOptions = response;
+    this.setState({
+        rerenderKey: this.state.rerenderKey + 1
+    });
+    console.log(this.doctorsOptions)
+  }
+
+  handleValidation (form) {
+    return false;
+  }
+
+  async handleMakeAppointment (event) {
+    event.preventDefault();
+    console.log("making an appointment")
+    if (this.blockedForm === false) {
+      const form = event.target;
+      const formFields = form.elements;
+
+      if (this.handleValidation(form) === true) return;
+
+      this.blockedForm = true;
+      $(".preloader").css({display: "opacity(1)"});
+      this.setState({
+        rerenderKey: this.state.rerenderKey + 1
+      });
+
+      const appointmentData = {
+        appointmentDate: new Date(formFields["date"].value),
+        appointmentTime: formFields["time"].value,
+        doctorId: parseInt(formFields["doctor"].value),
+        userId: 1,
+        reason: formFields["reason"].value,
+        additionalMessage: formFields["message"].value
+      };
+
+      const response = await Authenticator.handleMakeAppointment(appointmentData);
+      console.log(response);
+
+      $(".preloader").css({display: "none"});
+      this.blockedForm = false;
+      this.registered = true;
       this.setState({
         rerenderKey: this.state.rerenderKey + 1
       });
@@ -147,26 +208,26 @@ class SystemPage extends React.Component {
                     </div>
 
                     <div className="col-md-6 col-sm-6">
-                          <form id="appointment-form" role="form" method="post" action="#">
+                          <form id="appointment-form" role="form" method="post" onSubmit={(event) => this.handleMakeAppointment(event)} style={{ display: (this.blockedForm || this.registered) ? "none" : "initial" }}>
                               <div className="section-title wow fadeInUp" data-wow-delay="0.4s">
                                     <h2>Make an appointment</h2>
                               </div>
 
                               <div className="wow fadeInUp" data-wow-delay="0.8s">
                                     <div className="col-md-6 col-sm-6">
-                                        <label htmlFor="date">Select Date</label>
-                                        <input id="date" type="date" name="date" defaultValue="" className="form-control" onInput={(e) => this.validateDate(e)} />
+                                        <label htmlFor="date">Select Date <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                        <input id="date" type="date" name="date" defaultValue="" className="form-control" onInput={(e) => this.validateDate(e)} required/>
                                     </div>
 
                                     <div className="col-md-6 col-sm-6">
-                                        <label htmlFor="date">Select Time</label>
-                                        <input id="time" type="time" name="time" defaultValue="" className="form-control" min="08:00" max="18:00" step="3600000" />
-                                        <small>Appointment hours are 8am to 6pm</small>
+                                        <label htmlFor="date">Select Time <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                        <input id="time" type="time" name="time" defaultValue="" className="form-control" min="08:00" max="18:00" step="1800" required />
+                                        <small style={{ marginBottom: "20px", display: "inline-block" }}>Appointment hours are 8am to 6pm</small>
                                     </div>
 
                                     <div className="col-md-6 col-sm-6">
-                                        <label htmlFor="select">Select Department</label>
-                                        <select className="form-control">
+                                        <label htmlFor="select">Select Department <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                        <select name="department" className="form-control" onChange={(e) => this.onDepartmentChange(e)} required>
                                               <option>General Health</option>
                                               <option>Cardiology</option>
                                               <option>Dental</option>
@@ -174,12 +235,29 @@ class SystemPage extends React.Component {
                                         </select>
                                     </div>
 
+                                    <div className="col-md-6 col-sm-6">
+                                        <label htmlFor="select">Select Doctor <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                        <select name="doctor" className="form-control" key={this.state.rerenderKey} required>
+                                            { this.doctorsOptions }
+                                        </select>
+                                    </div>
+
+                                    <div className="col-md-12 col-sm-12">
+                                        <label htmlFor="Message">Reason <span style={{color: "red", fontWeight: "bold" }}>*</span></label>
+                                        <textarea className="form-control" rows="5" id="reason" name="reason" placeholder="Reason" required></textarea>
+                                    </div>
+
                                     <div className="col-md-12 col-sm-12">
                                         <label htmlFor="Message">Additional Message</label>
                                         <textarea className="form-control" rows="5" id="message" name="message" placeholder="Message"></textarea>
-                                        <button type="submit" className="form-control" id="cf-submit" name="submit">Submit Button</button>
+                                        <button type="submit" className="form-control" id="cf-submit" name="submit" disabled={this.blockedForm}>Submit Button</button>
                                     </div>
                               </div>
+                          </form>
+                          <form id="appointment=form" role="form" style={{ display: this.registered ? "initial" : "none" }}>
+                            <div className="section-title wow fadeInUp" data-wow-delay="0.4s">
+                                <h2>Thank you for making an appointment!<br/><br/>You can now look into your Manage Account details to see further details! </h2>
+                            </div>
                           </form>
                     </div>
 

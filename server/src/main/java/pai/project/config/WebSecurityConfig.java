@@ -59,7 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         
         // W przykładzie nie ma potrzeby stosowania zabezpieczenia przed CSRF
-        httpSecurity.csrf().disable()
+        httpSecurity.cors().and().csrf().disable()
         // poniższe żądanie nie wymaga uwierzytelniania
             .authorizeRequests()
             .requestMatchers(CorsUtils::isPreFlightRequest)

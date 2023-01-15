@@ -11,54 +11,17 @@ import pai.project.domain.Address;
  *
  * @author Michal_Grabowski
  */
-public class UserDto {
-    private long id;
+public class DoctorDto {
     private String username;
-    private String password;
     private String firstName;
     private String lastName;
     private String email;
     private String idCard;
     private String phone;
     private Date birthDate;
-    private AddressDto address;
-    
-    public UserDto() {
-        
-    }
-    
-    public UserDto(long id, String username, String password, String firstName, String lastName, String email, String idCard, String phone, Date birthDate) {
-        this.setId(id);
-        this.setUsername(username);
-        this.setPassword(password);
-        this.setFirstName(firstName);
-        this.setLastName(lastName);
-        this.setEmail(email);
-        this.setIdCard(idCard);
-        this.setPhone(phone);
-        this.setBirthDate(birthDate);
-    }
-    
-    public UserDto(long id, String username, String password, String firstName, String lastName, String email, String idCard, String phone, Date birthDate, AddressDto address) {
-        this.setId(id);
-        this.setUsername(username);
-        this.setPassword(password);
-        this.setFirstName(firstName);
-        this.setLastName(lastName);
-        this.setEmail(email);
-        this.setIdCard(idCard);
-        this.setPhone(phone);
-        this.setBirthDate(birthDate);
-        this.setAddress(address);
-    }
-    
-    public long getId() {
-        return id;
-    }
-    
-    public void setId(long id) {
-        this.id = id;
-    }
+    private String department;
+    private Address address;
+    private String description;
     
     public String getUsername() {
         return username;
@@ -66,14 +29,6 @@ public class UserDto {
     
     public void setUsername(String username) {
         this.username = username;
-    }
-    
-    public String getPassword() {
-        return password;
-    }
-    
-    public void setPassword(String password) {
-        this.password = password;
     }
     
     public String getFirstName() {
@@ -124,12 +79,27 @@ public class UserDto {
         this.birthDate = birthDate;
     }
     
-    public AddressDto getAddress() {
+    public String getDepartment() {
+        return department;
+    }
+    
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+    
+    public Address getAddress() {
         return address;
     }
     
-    public void setAddress(AddressDto address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
     
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

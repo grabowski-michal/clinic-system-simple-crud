@@ -4,11 +4,16 @@
  */
 package pai.project.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.sql.Time;
+import java.util.Date;
+import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,21 +29,26 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@JsonIgnoreProperties({ "user", "doctor" })
-public class Address {
+public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String street;
-    private String postalCode;
-    private String city;
-    private String state;
-    private String country;
+    @Getter @Setter
+    private Date appointmentDate;
     
-    @OneToOne(mappedBy = "address")
-    private User user;
+    @Getter @Setter
+    private String appointmentTime;
     
-    @OneToOne(mappedBy = "address")
-    private Doctor doctor;
+    @Getter @Setter
+    private String reason;
+    
+    @Getter @Setter
+    private String additionalMessage;
+    
+    @Getter @Setter
+    private long doctorId;
+    
+    @Getter @Setter
+    private long userId;
 }
