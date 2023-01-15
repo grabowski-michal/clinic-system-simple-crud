@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,10 +31,13 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @NotBlank(message = "Street cannot be blank")
     private String street;
     private String postalCode;
+    @NotBlank(message = "City cannot be blank")
     private String city;
     private String state;
+    @NotBlank(message = "Country cannot be blank")
     private String country;
     
     @OneToOne(mappedBy = "address")

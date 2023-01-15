@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,19 +36,28 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Getter @Setter
+    @NotBlank(message = "Username cannot be blank")
+    @Column(unique=true)
     private String username;
     @Getter @Setter
     @JsonIgnore
+    @NotBlank(message = "Password cannot be blank")
     private String password;
     @Getter @Setter
+    @NotBlank(message = "Name cannot be blank")
     private String firstName;
     @Getter @Setter
+    @NotBlank(message = "Name cannot be blank")
     private String lastName;
     @Getter @Setter
+    @NotBlank(message = "Email cannot be blank")
     private String email;
     @Getter @Setter
+    @Column(unique=true)
+    @NotBlank(message = "ID Card cannot be blank")
     private String idCard;
     @Getter @Setter
+    @NotBlank(message = "Phone cannot be blank")
     private String phone;
     @Getter @Setter
     private Date birthDate;

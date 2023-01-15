@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,9 +36,11 @@ public class Appointment {
     private Long id;
     
     @Getter @Setter
+    @NotBlank(message = "Appointment Date cannot be blank")
     private Date appointmentDate;
     
     @Getter @Setter
+    @NotBlank(message = "Appointment Time cannot be blank")
     private String appointmentTime;
     
     @Getter @Setter

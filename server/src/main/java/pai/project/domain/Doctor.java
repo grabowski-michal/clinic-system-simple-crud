@@ -7,6 +7,7 @@ package pai.project.domain;
 import java.util.Date;
 import java.util.Set;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,6 +17,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,14 +38,20 @@ public class Doctor {
     private Long id;
     
     @Getter @Setter
+    @NotBlank(message = "First Name cannot be blank")
     private String firstName;
     @Getter @Setter
+    @NotBlank(message = "Last Name cannot be blank")
     private String lastName;
     @Getter @Setter
+    @NotBlank(message = "Phone cannot be blank")
     private String phone;
     @Getter @Setter
+    @NotBlank(message = "Email cannot be blank")
     private String email;
     @Getter @Setter
+    @Column(unique=true)
+    @NotBlank(message = "ID Card cannot be blank")
     private String idCard;
     @Getter @Setter
     private String department;

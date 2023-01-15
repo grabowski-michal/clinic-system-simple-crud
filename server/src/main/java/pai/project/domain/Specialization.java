@@ -5,6 +5,7 @@
 package pai.project.domain;
 
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -30,6 +31,7 @@ public class Specialization {
     private Long id;
     
     @Getter @Setter
+    @Column(unique=true)
     private String name;
     @Getter @Setter
     private String description;
