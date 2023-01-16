@@ -12,12 +12,16 @@ const EditableInput = (props) => {
   }
 
   const input = (name, value) => {
-    return <input id={name} type={props.type} defaultValue={value} onInput={changeValue} required={props.required}></input>;
+    return <input id={name.replace(".", "-")} type={props.type} defaultValue={value} onInput={changeValue} required={props.required}></input>;
   }
 
   const accept = async (event) => {
-    if (!$("#" + props.name)[0].checkValidity()) {
-      $("#" + props.name)[0].reportValidity();
+    let name = props.name;
+    if (name.indexOf(".") != -1) {
+      name = name.replace(".", "-");
+    }
+    if (!$("#" + name)[0].checkValidity()) {
+      $("#" + name)[0].reportValidity();
     } else {
       let res = await props.alterData(props.name, value);
       if (res.data || res.status === 200) {

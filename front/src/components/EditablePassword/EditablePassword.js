@@ -74,6 +74,10 @@ const EditablePassword = (props) => {
         errors.password = "Passwords are not the same";
         repeatNewPasswordField.setCustomValidity(errors.password);
         repeatNewPasswordField.reportValidity();
+      } else if (bcrypt.compareSync(newPasswordField.value, props.value)) {
+        errors.password = "New password cannot be the same as old password";
+        newPasswordField.setCustomValidity(errors.password);
+        newPasswordField.reportValidity();
       } else {
         repeatNewPasswordField.setCustomValidity("");
         repeatNewPasswordField.reportValidity();

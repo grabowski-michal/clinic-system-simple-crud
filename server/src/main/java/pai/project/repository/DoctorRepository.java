@@ -14,4 +14,5 @@ import pai.project.domain.Doctor;
  */
 public interface DoctorRepository extends CrudRepository<Doctor, Integer> {
     ArrayList<Doctor> findByDepartment(String department); 
+    Doctor findById(long id); 
 }

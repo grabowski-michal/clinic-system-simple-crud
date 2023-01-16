@@ -48,6 +48,9 @@ class SystemPage extends React.Component {
       e.target.value = '';
       e.target.setCustomValidity("Weekends not allowed");
       e.target.reportValidity();
+    } else {
+        e.target.setCustomValidity("");
+        e.target.reportValidity();
     }
   }
 

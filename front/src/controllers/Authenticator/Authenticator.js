@@ -230,6 +230,37 @@ class Authenticator {
         return response;
     }
 
+    static async getDoctorById (id) {
+        let token = localStorage.getItem('token');
+        let response = { data: {}, logged: false };
+
+        if (token) {
+            try {
+                const request = {
+                    ...Authenticator.config(token),
+                    params: {
+                        token: token,
+                        id: parseInt(id)
+                    }
+                }
+                console.log(request);
+                await axios.get('http://localhost:8080/getDoctor', request)
+                .then((res) => {
+                    response = {
+                        data: res.data,
+                        logged: true,
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    return;
+                });
+            } catch (ex) {
+                return;
+            }
+        }
+        return response;
+    }
 
 }
 

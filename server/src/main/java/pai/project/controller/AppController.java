@@ -145,6 +145,18 @@ public class AppController {
         return new ResponseEntity<>(doctors, HttpStatus.OK);
     }
     
+    @GetMapping("/getDoctor")
+    @ResponseBody
+    public ResponseEntity<Doctor> getDoctorById(@RequestParam("token") String token, @RequestParam("id") long id) {
+        String username = jwtTokenUtil.getUsernameFromToken(token);
+        User u = userRepository.findByUsername(username);
+        Doctor doc = new Doctor();
+        if (!username.isEmpty() && u != null) {
+            doc = doctorRepository.findById(id);
+        }
+        return new ResponseEntity<>(doc, HttpStatus.OK);
+    }
+    
     @GetMapping("/getAppointments")
     @ResponseBody
     public ResponseEntity<ArrayList<Appointment>> getAppointments(@RequestParam("token") String token) {

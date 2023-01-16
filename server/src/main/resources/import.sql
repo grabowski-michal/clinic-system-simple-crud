@@ -28,5 +28,5 @@ INSERT INTO doctor_specialization(doctor_id, specialization_id) VALUES(5, 3);
 INSERT INTO doctor_specialization(doctor_id, specialization_id) VALUES(6, 6);
 
 /* Test user */
-INSERT INTO Address(street, city, state, country, postal_code) VALUES('ul. Szmaragdowa 70', 'Wałbrzych', 'dolnośląskie', 'Polska', '77-632');
+INSERT INTO Address(street, city, state, country, postal_code) VALUES('ul. Trawiasta 14/34', 'Bochnia', 'małopolskie', 'Polska', '34-123');
 INSERT INTO User(birth_date, email, first_name, id_card, last_name, password, phone, username, address_id) VALUES (STR_TO_DATE('14-01-2005','%d-%m-%Y'), 'traczynski@gmail.com', 'Teodor', 'ABC123456', 'Raczyński', '$2a$10$Uk6TjowzYIjKZEhmfQD2s.ewaLaaDNvUPKKwBIs5E18F1cixLhhGG', '123456789', 'Traczynski1', 7);
