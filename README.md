@@ -18,5 +18,7 @@ Aplikacja korzysta z tokenów JWT dla Security.
 
 Model encji znajduje się w tym samym folderze co README
 
+README standardowe Reacta znajduje się w folderze front
+
 ###
 
